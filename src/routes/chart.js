@@ -13,25 +13,23 @@ const pb = 50;
 // emblem width
 const logo_width = 100; // only set the width, the height auto-scales
 
-function fadeInFadeOutGroup() {
-	return [
-		(enter) =>
-			enter
-				.append('g')
-				.style('opacity', 0)
-				.transition()
-				.duration(300)
-				.style('opacity', 1),
-		(update) => update,
-		(exit) =>
-			exit
-				.style('opacity', 1)
-				.transition()
-				.duration(300)
-				.style('opacity', 0)
-				.remove()
-	];
-}
+const groupJoinWithDefaultTransition = [
+	(enter) =>
+		enter
+			.append('g')
+			.style('opacity', 0)
+			.transition()
+			.duration(300)
+			.style('opacity', 1),
+	(update) => update,
+	(exit) =>
+		exit
+			.style('opacity', 1)
+			.transition()
+			.duration(300)
+			.style('opacity', 0)
+			.remove()
+];
 
 function summary(node) {
 	// Add explanation mini chart
@@ -39,19 +37,35 @@ function summary(node) {
 
 	const summaryTextNode = node
 		.selectAll('.summary-text')
-		.data((data) =>
-			data.length
+		.data((d) => {
+			return d.length
 				? [
 						[
 							`Total minutes: 5040`,
-							`Number of players: ${data.length}`,
-							`Average age: ${Math.round((data.reduce((acc, val) => acc + val.age_21_22, 0) / data.length) * 10) / 10}`,
-							`Average stay at club: ${Math.round((data.reduce((acc, val) => acc + (val.age_21_22 - val.age_joined), 0) / data.length) * 10) / 10}`
+							`Number of players: ${d.length}`,
+							`Average age: ${Math.round((d.reduce((acc, val) => acc + val.age_21_22, 0) / d.length) * 10) / 10}`,
+							`Average stay at club: ${Math.round((d.reduce((acc, val) => acc + (val.age_21_22 - val.age_joined), 0) / d.length) * 10) / 10}`
 						]
 					]
-				: []
+				: [];
+		})
+		.join(
+			(enter) =>
+				enter
+					.append('text')
+					.style('opacity', 0)
+					.transition()
+					.duration(300)
+					.style('opacity', 1),
+			(update) => update,
+			(exit) =>
+				exit
+					.style('opacity', 1)
+					.transition()
+					.duration(300)
+					.style('opacity', 0)
+					.remove()
 		)
-		.join('text')
 		.classed('summary-text', true)
 		.attr('text-anchor', 'middle');
 	//.attr("x", w - pl - pr + logo_width/2 + 20)
@@ -141,7 +155,7 @@ function legend(node, show) {
 	const g = node
 		.selectAll('.summary-container')
 		.data(show ? [legendData] : [])
-		.join(...fadeInFadeOutGroup())
+		.join(...groupJoinWithDefaultTransition)
 		.classed('summary-container', true);
 
 	g.selectAll('.explanatory-tail')
@@ -169,7 +183,7 @@ function legend(node, show) {
 		.data((d) => d.explanatory_labels)
 		.join('line')
 		.classed('explanatory_labels', true)
-		.attr('x1', (d, i) => d.x + 2) // label x coordinate
+		.attr('x1', (d) => d.x + 2) // label x coordinate
 		.attr('y1', (d, i) => d.y - 8 + i * 10) //offset jednoggore jednog dolje
 		.attr('x2', (d) => d.x_point) // point x coordinate
 		.attr('y2', (d) => d.y_point)
@@ -181,16 +195,20 @@ function legend(node, show) {
 function xAxis(node, scale) {
 	const axis = d3.axisBottom(scale);
 
-	node
-		.selectAll('.x-axis')
+	const g = node
+		.selectAll('.x-axis-g')
+		.data((d) => d)
+		.join(...groupJoinWithDefaultTransition)
+		.classed('x-axis-g', true);
+
+	g.selectAll('.x-axis')
 		.data((d) => [d])
 		.join('g')
 		.attr('class', 'x-axis')
 		.attr('transform', 'translate(0,' + (h - pb) + ')')
 		.call(axis.tickSizeOuter(0)); // to remove the tick which by default appears at min and max values
 
-	node
-		.selectAll('.x.axis-label')
+	g.selectAll('.x.axis-label')
 		.data((d) => [d])
 		.join('text')
 		.attr('class', 'x axis-label')
@@ -200,8 +218,7 @@ function xAxis(node, scale) {
 		.text('Player Age');
 
 	// Gridlines (essentially the duplicated axes again, but with ticks converted to gridlines and with removed axis labels and breaks)
-	node
-		.selectAll('.x-grid')
+	g.selectAll('.x-grid')
 		.data((d) => [d])
 		.join('g')
 		.attr('class', 'x-grid')
@@ -217,8 +234,13 @@ function xAxis(node, scale) {
 function yAxis(node, scale) {
 	const axis = d3.axisLeft(scale);
 
-	node
-		.selectAll('.y.axis-label')
+	const g = node
+		.selectAll('.y-axis-g')
+		.data((d) => d)
+		.join(...groupJoinWithDefaultTransition)
+		.classed('y-axis-g', true);
+
+	g.selectAll('.y.axis-label')
 		.data((d) => [d])
 		.join('text')
 		.attr('class', 'y axis-label')
@@ -228,16 +250,14 @@ function yAxis(node, scale) {
 		.attr('x', -(pt + (h - pb - pt) / 2))
 		.text('Minutes Played (%)');
 
-	node
-		.selectAll('.y-axis')
+	g.selectAll('.y-axis')
 		.data((d) => [d])
 		.join('g')
 		.attr('class', 'y-axis')
 		.attr('transform', 'translate(' + pl + ', 0)')
 		.call(axis.tickSizeOuter(0));
 
-	node
-		.selectAll('.y-grid')
+	g.selectAll('.y-grid')
 		.data((d) => [d])
 		.join('g')
 		.attr('class', 'y-grid')
@@ -338,8 +358,10 @@ function playerPoints(node, xScale, yScale) {
 
 	const pointsGroup = node
 		.selectAll('.data-point-group')
-		.data((data) => [calculateLabels(data, xScale, yScale)])
-		.join('g')
+		.data((data) =>
+			data.length ? [calculateLabels(data, xScale, yScale)] : []
+		)
+		.join(...groupJoinWithDefaultTransition)
 		.attr('class', 'data-point-group');
 
 	const nameLabels = pointsGroup
@@ -381,7 +403,23 @@ function playerLines(node, xScale, yScale) {
 	node
 		.selectAll('.player-tail')
 		.data((data) => data)
-		.join('line')
+		.join(
+			(enter) =>
+				enter
+					.append('line')
+					.style('opacity', 0)
+					.transition()
+					.duration(300)
+					.style('opacity', 1),
+			(update) => update,
+			(exit) =>
+				exit
+					.style('opacity', 1)
+					.transition()
+					.duration(300)
+					.style('opacity', 0)
+					.remove()
+		)
 		.classed('player-tail', true)
 		.attr('x1', (d) => xScale(d.age_21_22))
 		.attr('y1', (d) => yScale(d['Minutes Played']))
@@ -392,9 +430,6 @@ function playerLines(node, xScale, yScale) {
 }
 
 function calculateLabels(data, xScale, yScale) {
-	if (data.length === 0) {
-		return { labels: [], labels_filter: [], data: [] };
-	}
 	// label link min distance condition
 	const min_distance = 0;
 
@@ -489,8 +524,8 @@ export function createViz(svgElement, rawData, step) {
 
 	svg
 		.selectAll('.summary')
-		.data(step === 6 ? [rawData] : [])
-		.join(...fadeInFadeOutGroup())
+		.data(step === 6 ? [rawData] : [[]])
+		.join('g')
 		.classed('summary', true)
 		.call(summary);
 
@@ -498,29 +533,29 @@ export function createViz(svgElement, rawData, step) {
 
 	svg
 		.selectAll('.player-lines')
-		.data(step >= 5 ? [data] : [])
-		.join(...fadeInFadeOutGroup())
+		.data(step >= 5 ? [data] : [[]])
+		.join('g')
 		.classed('player-lines', true)
 		.call(playerLines, xScale, yScale);
 
 	svg
 		.selectAll('.player-points')
-		.data(step >= 4 ? [data] : [])
-		.join(...fadeInFadeOutGroup())
+		.data(step >= 4 ? [data] : [[]])
+		.join('g')
 		.classed('player-points', true)
 		.call(playerPoints, xScale, yScale);
 
 	svg
-		.selectAll('.x-axis-group')
-		.data(step >= 2 ? [1] : [])
-		.join(...fadeInFadeOutGroup())
-		.classed('x-axis-group', true)
+		.selectAll('.x-axis-container')
+		.data(step >= 2 ? [[1]] : [[]])
+		.join('g')
+		.classed('x-axis-container', true)
 		.call(xAxis, xScale);
 
 	svg
-		.selectAll('.y-axis-group')
-		.data(step >= 3 ? [1] : [])
-		.join(...fadeInFadeOutGroup())
-		.classed('y-axis-group', true)
+		.selectAll('.y-axis-container')
+		.data(step >= 3 ? [[1]] : [[]])
+		.join('g')
+		.classed('y-axis-container', true)
 		.call(yAxis, yScale);
 }
