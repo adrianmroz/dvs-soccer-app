@@ -1,4 +1,5 @@
 <script>
+	import { fade } from 'svelte/transition';
 	import * as d3 from 'd3';
 
 	export let scale;
@@ -41,7 +42,7 @@
 	}
 </script>
 
-<g class="y-axis" bind:this={g}></g>
+<g class="y-axis" transition:fade bind:this={g}></g>
 
 <style>
 	.y-axis :global(.tick) {

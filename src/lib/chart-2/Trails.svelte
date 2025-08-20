@@ -1,4 +1,5 @@
 <script>
+	import { fade } from 'svelte/transition';
 	export let data = [];
 	export let xScale;
 	export let yScale;
@@ -20,14 +21,16 @@
 	{/each}
 </defs>
 
-{#each data as d, i}
-	<line
-		class="player-tail"
-		x1={xScale(d.age_21_22)}
-		x2={xScale(d.age_joined)}
-		y1={yScale(d['Minutes Played'])}
-		y2={yScale(d['Minutes Played']) + 0.1}
-		stroke={`url(#chart-2-tail-gradient-${i})`}
-		stroke-width={1.2}
-	/>
-{/each}
+<g transition:fade>
+	{#each data as d, i}
+		<line
+			class="player-tail"
+			x1={xScale(d.age_21_22)}
+			x2={xScale(d.age_joined)}
+			y1={yScale(d['Minutes Played'])}
+			y2={yScale(d['Minutes Played']) + 0.1}
+			stroke={`url(#chart-2-tail-gradient-${i})`}
+			stroke-width={1.2}
+		/>
+	{/each}
+</g>

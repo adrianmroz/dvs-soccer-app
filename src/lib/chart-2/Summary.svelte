@@ -1,4 +1,5 @@
 <script>
+	import { fade } from 'svelte/transition';
 	export let data = [];
 
 	$: labels = [
@@ -9,7 +10,7 @@
 	];
 </script>
 
-<text text-anchor="middle">
+<text text-anchor="middle" transition:fade>
 	{#each labels as label, i}
 		<tspan x={0} y={i * 12}>{label}</tspan>
 	{/each}

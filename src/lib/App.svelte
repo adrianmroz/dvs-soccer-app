@@ -4,7 +4,7 @@
 	import ChartV1 from '$lib/ChartV1.svelte';
 	import ChartV2 from '$lib/ChartV2.svelte';
 
-	let step = 6;
+	let step = 1;
 	const maxStep = 6;
 
 	const stories = [

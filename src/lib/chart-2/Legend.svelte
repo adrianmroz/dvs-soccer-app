@@ -1,4 +1,6 @@
 <script>
+	import { fade } from 'svelte/transition';
+
 	const explanatory_tails = [
 		{
 			x1: 0,
@@ -56,37 +58,39 @@
 	{/each}
 </defs>
 
-{#each explanatory_tails as tail, i}
-	<line
-		class="explanatory-tail"
-		x1={tail.x2}
-		y1={tail.y}
-		x2={tail.x1}
-		y2={tail.y}
-		stroke={`url(#chart-2-explanatory-gradient-${i})`}
-		stroke-width={1.2}
-	/>
-{/each}
+<g transition:fade>
+	{#each explanatory_tails as tail, i}
+		<line
+			class="explanatory-tail"
+			x1={tail.x2}
+			y1={tail.y}
+			x2={tail.x1}
+			y2={tail.y}
+			stroke={`url(#chart-2-explanatory-gradient-${i})`}
+			stroke-width={1.2}
+		/>
+	{/each}
 
-{#each explanatory_labels as label, i}
-	<text
-		class="explanatory-label"
-		x={label.x}
-		y={label.y}
-		text-anchor="middle"
-		font-size={8.5}
-	>
-		{label.label}
-	</text>
-	<line
-		class="explanatory-line"
-		x1={label.x + 2}
-		y1={label.y - 8 + i * 10}
-		x2={label.x_point}
-		y2={label.y_point}
-		stroke="gray"
-		stroke-width={0.9}
-		marker-end="url(#chart-2-arrow)"
-	>
-	</line>
-{/each}
+	{#each explanatory_labels as label, i}
+		<text
+			class="explanatory-label"
+			x={label.x}
+			y={label.y}
+			text-anchor="middle"
+			font-size={8.5}
+		>
+			{label.label}
+		</text>
+		<line
+			class="explanatory-line"
+			x1={label.x + 2}
+			y1={label.y - 8 + i * 10}
+			x2={label.x_point}
+			y2={label.y_point}
+			stroke="gray"
+			stroke-width={0.9}
+			marker-end="url(#chart-2-arrow)"
+		>
+		</line>
+	{/each}
+</g>
