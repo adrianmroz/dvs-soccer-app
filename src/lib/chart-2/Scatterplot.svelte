@@ -1,6 +1,21 @@
 <script>
-	import { fade, scale } from 'svelte/transition';
+	import { fade } from 'svelte/transition';
 	import calculateLabels from '$lib/chart-2/calculate-labels.js';
+	import { elasticOut } from 'svelte/easing';
+
+	function scaleR(node, { duration = 400, delay = 0 }) {
+		const style = getComputedStyle(node);
+		const targetRadius = parseFloat(style.r) || 0;
+		return {
+			duration,
+			delay,
+			easing: elasticOut,
+			css: (t) => `
+				opacity: ${t};
+				r: ${Math.max(0, t * targetRadius)}px;
+			`
+		};
+	}
 
 	export let data = [];
 	export let xScale;
@@ -14,7 +29,7 @@
 
 {#each data as d}
 	<circle
-		transition:scale|global
+		transition:scaleR|global
 		cx={xScale(d.age_21_22)}
 		cy={yScale(d['Minutes Played'])}
 		r="2.5"
