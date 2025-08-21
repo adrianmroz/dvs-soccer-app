@@ -1,9 +1,9 @@
 <script>
 	import { fade } from 'svelte/transition';
-	import { createViz } from './chart.js';
 	import data from './data.json';
+	import ChartV1 from '$lib/ChartV1.svelte';
+	import ChartV2 from '$lib/ChartV2.svelte';
 
-	let svgElement;
 	let step = 1;
 	const maxStep = 6;
 
@@ -23,12 +23,11 @@
 	function prevStep() {
 		step = Math.max(step - 1, 1);
 	}
-
-	$: createViz(svgElement, data, step);
 </script>
 
 <div class="container">
-	<svg bind:this={svgElement} class="chart"></svg>
+	<ChartV2 {step} {data} />
+	<ChartV1 {step} {data} />
 	{#key step}
 		<p in:fade={{ duration: 300 }}>
 			{stories[step - 1]}
@@ -47,48 +46,10 @@
 		position: relative;
 	}
 
-	svg {
-		background: #fff;
-		display: block;
-		margin: 0 auto 1.5em;
-	}
-
 	button {
 		margin: 0 12px;
 		padding: 0.6em 1.4em;
 		font-size: 1em;
 		border-radius: 5px;
-	}
-
-	.chart :global(.x-grid .tick line),
-	.chart :global(.y-grid .tick line) {
-		stroke: #e0e0e0;
-		stroke-width: 1;
-		shape-rendering: crispEdges;
-		opacity: 55%;
-	}
-
-	.chart :global(.axis-label) {
-		font-size: 14px;
-	}
-
-	.chart :global(.name-labels) {
-		font-size: 12px;
-	}
-
-	.chart {
-		font-family: 'Roboto Condensed', Arial, sans-serif;
-	}
-
-	.chart :global(.axis-label) {
-		color: black;
-	}
-
-	.chart :global(.tick) {
-		color: #676767;
-	}
-
-	.chart :global(.plot-title) {
-		font-weight: bold;
 	}
 </style>

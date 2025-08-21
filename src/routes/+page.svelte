@@ -1,6 +1,6 @@
 <script>
 	import '../app.css';
-	import App from './App.svelte';
+	import App from '$lib/App.svelte';
 </script>
 
 <App />
