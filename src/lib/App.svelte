@@ -25,7 +25,13 @@
 	}
 </script>
 
-<div class="container">
+<div
+	class="container"
+	style={{
+		position: step >= 1 && step <= 5 ? 'absolute' : 'relative',
+		top: step === 1 ? '20%' : '0'
+	}}
+>
 	<ChartV2 {step} {data} />
 	<ChartV1 {step} {data} />
 	{#key step}

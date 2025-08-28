@@ -6,8 +6,6 @@ export default function calculateLabels(data, xScale, yScale) {
 	const [y1, y2] = yScale.range();
 	const h = y1 - y2;
 
-	console.log('DBG', w, h);
-
 	// label link min distance condition
 	const min_distance = 0;
 

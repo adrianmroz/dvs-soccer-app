@@ -10,13 +10,15 @@
 	import Trails from '$lib/chart-2/Trails.svelte';
 	export let data = [];
 	export let step = 1;
-
 	// svg container dimensions
-	const w = 750;
-	const h = 500;
+	export let width = 750;
+	export let height = 500;
+
+	$: console.log('DBG', 'height', height);
+	$: console.log('DBG', 'width', width);
 
 	// margins
-	const pl = 50;
+	const pl = 70;
 	const pt = 60;
 	const pr = 150;
 	const pb = 50;
@@ -44,7 +46,7 @@
 			d3.min(transformedData, (d) => d.age_joined) - 1,
 			d3.max(transformedData, (d) => d.age_21_22) + 1
 		])
-		.range([0, w - pr - pl]);
+		.range([0, width - pr - pl]);
 
 	$: yScale = d3
 		.scaleLinear()
@@ -52,18 +54,18 @@
 			d3.min(transformedData, (d) => d['Minutes Played']) - 3,
 			d3.max(transformedData, (d) => d['Minutes Played']) + 7
 		])
-		.range([h - pb - pt, 0]);
+		.range([height - pb - pt, 0]);
 </script>
 
-<svg width={w} height={h}>
+<svg {width} {height}>
 	{#if step >= 2}
-		<g transform={`translate(${pl}, ${h - pb})`}>
-			<XAxis scale={xScale} width={w - pl - pr} height={h - pt - pb} />
+		<g transform={`translate(${pl}, ${height - pb})`}>
+			<XAxis scale={xScale} width={width - pl - pr} height={height - pt - pb} />
 		</g>
 	{/if}
 	{#if step >= 3}
 		<g transform={`translate(${pl}, ${pt})`}>
-			<YAxis scale={yScale} height={h - pt - pb} width={w - pl - pr} />
+			<YAxis scale={yScale} height={height - pt - pb} width={width - pl - pr} />
 		</g>
 	{/if}
 	{#if step >= 4}
@@ -77,18 +79,18 @@
 		</g>
 	{/if}
 	{#if step >= 5}
-		<g transform={`translate(${w - pr + 45}, 295)`}>
+		<g transform={`translate(${width - pr + 45}, 295)`}>
 			<Legend />
 		</g>
 	{/if}
-	<g transform={`translate(${w - pl - pr + logo_width / 2 + 20}, ${pt})`}>
+	<g transform={`translate(${width - pr - logo_width / 20 + 20}, ${pt})`}>
 		<Logo width={logo_width} />
 	</g>
 	<g transform={`translate(${pl}, ${pt / 2})`}>
 		<Title />
 	</g>
 	{#if step === 6}
-		<g transform={`translate(${w - pr + logo_width / 2 + 20}, 180)`}>
+		<g transform={`translate(${width - pr + logo_width / 2 + 20}, 180)`}>
 			<Summary {data} />
 		</g>
 	{/if}
